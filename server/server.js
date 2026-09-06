@@ -4,7 +4,7 @@ import cors from 'cors'
 import 'dotenv/config'
 import connectDB from './Config/mongoDB.js'
 import * as Sentry from "@sentry/node"
-import { clerkWebhook } from "./Middlewares/WebHooks.js"
+import { clerkWebhook } from "./Controllers/WebHooks.js"
 import dns from "dns"
 
 // Force Node.js to use Cloudflare + Google DNS
