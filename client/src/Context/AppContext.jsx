@@ -1,0 +1,44 @@
+import { createContext, useEffect, useState } from "react";
+import { jobsData } from "../assets/assets";
+
+export const AppContext = createContext();
+
+export const AppContextProvider = ({ children }) => {
+
+    const [searchFilter, setSearchFilter] = useState({
+        title: "",
+        location: "",
+    });
+
+    const [isSearched, setIsSearched] = useState(false);
+
+    const [Jobs, setJobs] = useState([]);
+
+    const [showRecruiterLogin, setShowRecruiterLogin] = useState(false);
+
+    //Function To Fetch Jobs Data From Assets
+    const fetchJobsData = () => {
+
+        setJobs(jobsData);
+
+    }
+
+    useEffect(() => {
+
+        fetchJobsData();
+
+    }, []);
+
+    const value = {
+        searchFilter, setSearchFilter,
+        isSearched, setIsSearched,
+        Jobs, setJobs,
+        showRecruiterLogin, setShowRecruiterLogin
+    };
+
+    return (
+        <AppContext.Provider value={value}>
+            {children}
+        </AppContext.Provider>
+    );
+}; 
