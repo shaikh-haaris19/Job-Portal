@@ -5,6 +5,10 @@ import 'dotenv/config'
 import connectDB from './Config/mongoDB.js'
 import * as Sentry from "@sentry/node"
 import { clerkWebhook } from "./Middlewares/WebHooks.js"
+import dns from "dns"
+
+// Force Node.js to use Cloudflare + Google DNS
+dns.setServers(["1.1.1.1", "8.8.8.8"]);
 
 //Initialize Express
 const app = express()
