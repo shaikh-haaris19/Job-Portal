@@ -8,7 +8,7 @@ import { clerkWebhook } from "./Controllers/WebHooks.js"
 import dns from "dns"
 import companyRoutes from "./Routes/CompanyRoutes.js"
 import connectCloudinary from "./Config/cloudinary.js"
-import { v2 as cloudinary } from "cloudinary"
+import jobRoutes from "./Routes/JobRoutes.js"
 
 // Force Node.js to use Cloudflare + Google DNS
 dns.setServers(["1.1.1.1", "8.8.8.8"]);
@@ -19,18 +19,22 @@ const app = express()
 //Port
 const port = process.env.PORT || 5000
 
+// -------------------- Connect DB & Cloudinary --------------------
+
 //Connect to MongoDB
 await connectDB()
 
 //Connect to Cloudinary
 await connectCloudinary()
 
-//MiddleWare
+// -------------------- MiddleWare --------------------
+
 app.use(cors())             // Enable CORS for all routes
 app.use(express.json())     // Parse incoming JSON requests
 
 
-//Routes
+// -------------------- Routes --------------------
+
 app.get('/', (req, res) => {
     res.send('Hello World!')
 })
@@ -41,12 +45,16 @@ app.get("/debug-sentry", function mainHandler(req, res) {
 });
 
 // Webhook route for Clerk
-app.post('/webhooks', clerkWebhook )
+app.post('/webhooks', clerkWebhook)
 
 // Use the company routes for /api/company
-app.use('/api/company', companyRoutes) 
+app.use('/api/company', companyRoutes)
 
-// The error handler must be registered before any other error middleware and after all controllers
+// Use The Job Routes for /api/jobs
+app.use('/api/jobs', jobRoutes)
+
+// -------------------- Error Handling Using Sentry --------------------
+
 Sentry.setupExpressErrorHandler(app);
 
 app.listen(port, () => {
