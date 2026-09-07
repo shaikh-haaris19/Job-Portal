@@ -77,7 +77,24 @@ export const getUserAppliedApplications = async (req, res) => {
 
     try {
 
+        const userId = req.auth.userId
+
+        // Find all job applications for the user and populate company and job details
+        const applications = await JobApplication.find({ userId })
+            .populate('companyId ', 'name email image')
+            .populate('jobId', 'title description location salary level category')
+            .exec()
+
+        if (!applications || applications.length === 0) {
+            return res.status(404).json({ success: false, message: "No applications found for this user" })
+        }
+
+        return res.json({ success: true, "Applied-Applications": applications })
+
     } catch (error) {
+
+        console.error("Error fetching user applications:", error)
+        res.status(500).json({ success: false, message: "Error fetching user applications" })
 
     }
 
