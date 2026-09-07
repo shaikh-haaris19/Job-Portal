@@ -9,6 +9,8 @@ import dns from "dns"
 import companyRoutes from "./Routes/CompanyRoutes.js"
 import connectCloudinary from "./Config/cloudinary.js"
 import jobRoutes from "./Routes/JobRoutes.js"
+import userRoutes from "./Routes/UserRoutes.js"
+import { clerkMiddleware } from '@clerk/express'
 
 // Force Node.js to use Cloudflare + Google DNS
 dns.setServers(["1.1.1.1", "8.8.8.8"]);
@@ -31,6 +33,7 @@ await connectCloudinary()
 
 app.use(cors())             // Enable CORS for all routes
 app.use(express.json())     // Parse incoming JSON requests
+app.use(clerkMiddleware())  // Clerk middleware for authentication
 
 
 // -------------------- Routes --------------------
@@ -52,6 +55,9 @@ app.use('/api/company', companyRoutes)
 
 // Use The Job Routes for /api/jobs
 app.use('/api/jobs', jobRoutes)
+
+// Use the user routes for /api/user
+app.use('/api/user', userRoutes)
 
 // -------------------- Error Handling Using Sentry --------------------
 
