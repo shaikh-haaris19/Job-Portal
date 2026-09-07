@@ -105,12 +105,22 @@ export const loginCompany = async (req, res) => {
 
 }
 
-//Get Company Data
+//Get Company Data - Helps To Get Company Data For Dashboard
 export const getCompanyData = async (req, res) => {
 
     try {
 
+        const company = req.company
+
+        return res.status(200).json({
+            success: true,
+            company
+        })
+
     } catch (error) {
+
+        console.error("Error fetching company data:", error)
+        res.status(500).json({ success: false, message: "Error fetching company data" })
 
     }
 
@@ -171,7 +181,23 @@ export const getCompanyPostedJobs = async (req, res) => {
 
     try {
 
+        const companyId = req.company._id
+
+        const jobs = await Job.find({ companyId })
+
+
+        //TODO : Adding No.Of Applicants Info In Job Data
+
+
+        return res.status(200).json({
+            success: true,
+            "postedJobs": jobs
+        })
+
     } catch (error) {
+
+        console.error("Error fetching company posted jobs:", error)
+        return res.status(500).json({ success: false, message: "Error Fetching Company Posted Jobs" })
 
     }
 
@@ -193,7 +219,27 @@ export const changeJobVisibility = async (req, res) => {
 
     try {
 
+        const companyId = req.company._id
+        const { jobId } = req.body
+
+        const job = await Job.findById({ _id: jobId })
+
+        // Check if the job belongs to the company
+        if (job.companyId.toString() !== companyId.toString()) {
+            return res.status(403).json({ success: false, message: "Not Authorized To Change Visibility" })
+        }
+
+        // Toggle the visibility status
+        job.visible = !job.visible
+
+        await job.save()
+
+        return res.json({ success: true, "updatedJob": job })
+
     } catch (error) {
+
+        console.error("Error changing job visibility:", error)
+        return res.status(500).json({ success: false, message: "Error Changing Job Visibility" })
 
     }
 
