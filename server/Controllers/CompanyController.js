@@ -65,7 +65,40 @@ export const loginCompany = async (req, res) => {
 
     try {
 
+        const { email, password } = req.body
+
+        if (!email || !password) {
+            return res.status(400).json({ success: false, message: "Missing Details" })
+        }
+
+        // Find the company by email
+        const company = await Company.findOne({ email })
+
+        //Company Not Found
+        if (!company) {
+            return res.status(400).json({ success: false, message: "Company Not Found" })
+        }
+
+        // Check if the password is correct
+        const isMatch = await bcrypt.compare(password, company.password)
+
+        if (!isMatch) {
+            return res.status(400).json({ success: false, message: "Invalid Credentials" })
+        }
+
+        // Creates JWT Token for the Company
+        const token = genToken(company._id)
+
+        return res.status(200).json({
+            success: true,
+            company: { _id: company._id, name: company.name, email: company.email, image: company.image },
+            token
+        })
+
     } catch (error) {
+
+        console.error("Error logging in company:", error)
+        return res.status(500).json({ success: false, message: "Error Logging In Company" })
 
     }
 
