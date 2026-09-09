@@ -84,7 +84,7 @@ export const loginCompany = async (req, res) => {
         const isMatch = await bcrypt.compare(password, company.password)
 
         if (!isMatch) {
-            return res.status(400).json({ success: false, message: "Invalid Credentials" })
+            return res.json({ success: false, message: "Invalid Credentials" })
         }
 
         // Creates JWT Token for the Company
@@ -93,7 +93,8 @@ export const loginCompany = async (req, res) => {
         return res.status(200).json({
             success: true,
             company: { _id: company._id, name: company.name, email: company.email, image: company.image },
-            token
+            token,
+            message: "Successfully Logged In"
         })
 
     } catch (error) {

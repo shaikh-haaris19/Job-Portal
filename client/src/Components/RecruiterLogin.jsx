@@ -1,10 +1,15 @@
 import { useContext, useEffect, useState } from "react";
 import { assets } from "../assets/assets";
 import { AppContext } from "../Context/AppContext";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const RecruiterLogin = () => {
 
-    const { setShowRecruiterLogin } = useContext(AppContext);
+    const { setShowRecruiterLogin, BackEndUrl, setCompanyData, setCompanyToken } = useContext(AppContext);
+
+    const navigate = useNavigate();
 
     // State to toggle between login and signup 
     const [state, setState] = useState('Login');
@@ -33,13 +38,71 @@ const RecruiterLogin = () => {
 
     }
 
-    const handleOnSubmit = (e) => {
+    const handleOnSubmit = async (e) => {
 
         e.preventDefault();
 
         // Checking if the state is SignUp and the text data is not submitted, then set the text data as submitted
         if (state === 'SignUp' && !isTextDataSubmitted) {
-            setIsTextDataSubmitted(true);
+            return setIsTextDataSubmitted(true);
+        }
+
+        try {
+
+            if (state === 'Login') {
+
+                const response = await axios.post(`${BackEndUrl}/api/company/login`, { email: credentials.email, password: credentials.password });
+
+                if (response.data.success) {
+
+                    // Storing the Company Data and Token in the Context & Also in the Local Storage
+                    setCompanyData(response.data.user);
+                    setCompanyToken(response.data.token);
+                    localStorage.setItem('companyToken', response.data.token);
+
+                    // Closing the Login Modal & Navigating to the Dashboard of the Recruiter
+                    setShowRecruiterLogin(false);
+                    navigate('/dashboard');
+
+                    // Showing Toast Message of Success
+                    toast.success('Welcome, ' + response.data.company.name);
+
+                } else {
+                    toast.error(response.data.message);
+                }
+
+            } else if (state === 'SignUp' && isTextDataSubmitted) {
+
+                const formData = new FormData();
+                formData.append('name', credentials.name);
+                formData.append('email', credentials.email);
+                formData.append('password', credentials.password);
+                formData.append('image', image);
+
+                const response = await axios.post(`${BackEndUrl}/api/company/register`, formData);
+
+                if (response.data.success) {
+
+                    // Storing the Company Data and Token in the Context & Also in the Local Storage
+                    setCompanyData(response.data.company);
+                    setCompanyToken(response.data.token);
+                    localStorage.setItem('companyToken', response.data.token);
+
+                    // Closing the Login Modal & Navigating to the Dashboard of the Recruiter
+                    setShowRecruiterLogin(false);
+                    navigate('/dashboard');
+
+                    // Showing Toast Message of Success
+                    toast.success('Welcome, ' + response.data.company.name);
+
+                } else {
+                    toast.error(response.data.message);
+                }
+
+            }
+
+        } catch (error) {
+            console.error(error.message);
         }
 
     }
@@ -69,7 +132,7 @@ const RecruiterLogin = () => {
                             {/* Displaying the Logo Upload Section After The Credentials Are Submitted */}
 
                             <div className="flex items-center gap-4 my-10">
-                                <label htmlFor="CompanyLogo">
+                                <label htmlFor="CompanyLogo" className="cursor-pointer">
                                     <img className="w-16 rounded-full" src={image ? URL.createObjectURL(image) : assets.upload_area} alt="" />
                                     <input onChange={(e) => setImage(e.target.files[0])} type="file" id="CompanyLogo" hidden />
                                 </label>
@@ -100,7 +163,7 @@ const RecruiterLogin = () => {
                         </>
                 }
 
-                { state === 'Login' && <p className="text-sm text-blue-600 mt-4 ml-1 cursor-pointer">Forgot Password?</p> }
+                {state === 'Login' && <p className="text-sm text-blue-600 mt-4 ml-1 cursor-pointer">Forgot Password?</p>}
 
                 <button className={`bg-blue-600 w-full text-white py-2 rounded-full cursor-pointer mt-4`} type="submit">
                     {state === 'Login' ? 'Login' : isTextDataSubmitted ? 'Create Account' : 'Next'}

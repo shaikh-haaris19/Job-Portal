@@ -11,8 +11,7 @@ const Navbar = () => {
     const { user } = useClerk()
     const navigate = useNavigate()
 
-    const { setShowRecruiterLogin } = useContext(AppContext);
-
+    const { setShowRecruiterLogin, companyData } = useContext(AppContext);
     return (
         <div className='shadow py-4'>
 
