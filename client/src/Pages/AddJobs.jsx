@@ -1,8 +1,13 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useContext } from "react";
 import Quill from 'quill';
 import { JobCategories, JobLocations } from "../assets/assets";
+import { toast } from "react-toastify";
+import { AppContext } from "../Context/AppContext";
+import axios from "axios";
 
 const AddJobs = () => {
+
+  const { BackEndUrl, companyToken } = useContext(AppContext);
 
   const [title, setTitle] = useState('');
 
@@ -10,7 +15,7 @@ const AddJobs = () => {
 
   const [category, setCategory] = useState('Programming');
 
-  const [label, setLabel] = useState('Beginner Level');
+  const [level, setLevel] = useState('Beginner Level');
 
   const [salary, setSalary] = useState(0);
 
@@ -19,6 +24,49 @@ const AddJobs = () => {
 
   // Ref to hold the Quill instance
   const quillRef = useRef(null);
+
+  const onSubmitHandler = async (e) => {
+
+    e.preventDefault();
+
+    try {
+
+      // Getting the job description from the Quill editor
+      const jobDescription = quillRef.current.root.innerHTML;
+
+      // Creating a job object with the form data
+      const jobData = {
+        title,
+        description: jobDescription,
+        location,
+        salary,
+        level,
+        category
+      };
+
+      const response = await axios.post(`${BackEndUrl}/api/company/post-job`, jobData, { headers: { token: companyToken } });
+
+      if(response.data.success) {
+
+        toast.success("Job posted successfully!");
+
+        // Resetting the form fields after successful submission
+        setTitle('');
+        setLocation('Bangalore');
+        setCategory('Programming');
+        setLevel('Beginner Level');
+        setSalary(0);
+        quillRef.current.root.innerHTML = '';
+
+      } else {
+        toast.error(response.data.message);
+      }
+
+    } catch (error) {
+      toast.error(error.message);
+    }
+
+  };
 
   useEffect(() => {
 
@@ -34,7 +82,7 @@ const AddJobs = () => {
   }, []);
 
   return (
-    <form className="container p-4 flex flex-col w-full items-start gap-3">
+    <form onSubmit={onSubmitHandler} className="container p-4 flex flex-col w-full items-start gap-3">
 
       <div className="w-full">
         <p className="mb-2">Job Title</p>
@@ -75,7 +123,7 @@ const AddJobs = () => {
         {/* Job Level */}
         <div>
           <p className="mb-2">Job Level</p>
-          <select className="w-full px-3 py-2 border-2 border-gray-300 rounded" value={label} onChange={(e) => setLabel(e.target.value)}>
+          <select className="w-full px-3 py-2 border-2 border-gray-300 rounded" value={level} onChange={(e) => setLevel(e.target.value)}>
             <option value="Beginner Level">Beginner Level</option>
             <option value="Intermediate Level">Intermediate Level</option>
             <option value="Senior Level">Senior Level</option>
