@@ -179,6 +179,8 @@ const ApplyJob = () => {
               <h2>More Jobs From - {jobData.companyId.name}</h2>
               {
                 Jobs.filter(job => job.companyId._id === jobData.companyId._id && job._id !== jobData._id)
+                  // Exclude jobs already applied by the user
+                  .filter(job => userApplications.every(application => application.jobId._id !== job._id)) 
                   .slice(0, 3)
                   .map((job, index) => (
                     <JobCard key={index} job={job} />

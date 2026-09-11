@@ -1,16 +1,15 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
 import Footer from '../Components/Footer'
 import Navbar from '../Components/Navbar'
-import { assets, jobsApplied } from '../assets/assets';
+import { assets } from '../assets/assets';
 import { AppContext } from '../Context/AppContext';
-import { useAuth, useUser } from "@clerk/react";
+import { useAuth } from "@clerk/react";
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
 const Applications = () => {
 
   const { getToken } = useAuth();
-  const { user } = useUser();
 
   const [isEdit, setIsEdit] = useState(false);
   const [resume, setResume] = useState(null);
