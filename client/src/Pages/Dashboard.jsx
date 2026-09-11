@@ -1,13 +1,33 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom"
 import { assets } from "../assets/assets"
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { AppContext } from "../Context/AppContext";
 
 const Dashboard = () => {
 
     const navigate = useNavigate();
 
-    const { companyData, companyToken } = useContext(AppContext);
+    const { companyData, setCompanyData, setCompanyToken } = useContext(AppContext);
+
+    // Function To Logout The Recruiter
+    const handleLogout = () => {
+
+        // Clear The Company Data And Token From The Context And Local Storage
+        setCompanyData(null);
+        setCompanyToken(null);
+        localStorage.removeItem("companyToken");
+
+        // After clearing the data, Navigate To The Home Page
+        navigate("/");
+    }
+
+    useEffect(() => {
+
+        if(companyData){
+            navigate("/dashboard/add-jobs");
+        }
+
+    }, [companyData])
 
     return (
         <div className="min-h-screen">
@@ -33,12 +53,12 @@ const Dashboard = () => {
                                 {/* DropDown Menu */}
                                 <div className="absolute hidden group-hover:block top-0 right-0 z-10 text-black rounded pt-12">
                                     <ul className="list-none m-0 p-2 bg-white rounded border text-sm">
-                                        <li className="py-2 px-2 cursor-pointer pr-1">Logout</li>
+                                        <li onClick={() => handleLogout()} className="py-2 px-2 cursor-pointer pr-1 hover:bg-gray-300 rounded">Logout</li>
                                     </ul>
                                 </div>
 
                             </div>
-                        
+
                         </div>
                     }
                 </div>

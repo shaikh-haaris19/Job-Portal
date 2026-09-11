@@ -1,5 +1,4 @@
 import { createContext, useEffect, useState } from "react";
-import { jobsData } from "../assets/assets";
 import axios from "axios";
 import { toast } from "react-toastify";
 
@@ -24,10 +23,23 @@ export const AppContextProvider = ({ children }) => {
 
     const [companyData, setCompanyData] = useState(null);
 
-    //Function To Fetch Jobs Data From Assets
-    const fetchJobsData = () => {
+    //Function To Fetch Jobs Data 
+    const fetchJobsData = async () => {
 
-        setJobs(jobsData);
+        try {
+
+            const response = await axios.get(`${BackEndUrl}/api/jobs`);
+
+            if (response.data.success) {
+
+                setJobs(response.data.allJobs.reverse());
+
+            }
+
+        } catch (error) {
+            console.error("Error while fetching jobs data:", error);
+            toast.error("Error while fetching jobs data");
+        }
 
     }
 

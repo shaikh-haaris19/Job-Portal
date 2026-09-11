@@ -7,6 +7,8 @@ import { assets } from '../assets/assets';
 import kconvert from 'k-convert';
 import Footer from '../Components/Footer';
 import JobCard from '../Components/JobCard';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
 const ApplyJob = () => {
 
@@ -15,15 +17,21 @@ const ApplyJob = () => {
 
   const [jobData, setJobData] = useState(null);
 
-  const { Jobs } = useContext(AppContext);
+  const { Jobs, BackEndUrl } = useContext(AppContext);
 
-  const fetchJobData = () => {
+  const fetchJobData = async () => {
 
-    let job = Jobs.find(job => job._id === id);
+    try {
+      
+      const response = await axios.get(`${BackEndUrl}/api/jobs/${id}`);
 
-    if (job) {
-      setJobData(job);
-      console.log('Job Data:', job);
+      if (response.data.success) {
+        setJobData(response.data.job);
+      }
+
+    } catch (error) {
+      console.error("Error while fetching job data:", error);
+      toast.error("Error while fetching job data");
     }
 
   }
@@ -32,7 +40,7 @@ const ApplyJob = () => {
 
     fetchJobData();
 
-  }, [id, Jobs]);
+  }, [id]);
 
   return jobData ? (
     <>
