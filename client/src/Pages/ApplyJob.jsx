@@ -9,6 +9,7 @@ import Footer from '../Components/Footer';
 import JobCard from '../Components/JobCard';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { getToken } from '@clerk/react';
 
 const ApplyJob = () => {
 
@@ -19,7 +20,9 @@ const ApplyJob = () => {
 
   const [jobData, setJobData] = useState(null);
 
-  const { Jobs, BackEndUrl, userData, userApplications } = useContext(AppContext);
+  const { Jobs, BackEndUrl, userData, fetchUserApplications, userApplications } = useContext(AppContext);
+
+  const [hasApplied, setHasApplied] = useState(false);
 
   const fetchJobData = async () => {
 
@@ -28,6 +31,7 @@ const ApplyJob = () => {
       const response = await axios.get(`${BackEndUrl}/api/jobs/${id}`);
 
       if (response.data.success) {
+        console.log(response.data.job)
         setJobData(response.data.job);
       }
 
@@ -49,25 +53,53 @@ const ApplyJob = () => {
       }
 
       // Check if user has uploaded resume
-      if(!userData.resume) {
+      if (!userData.resume) {
         toast.error("Please upload your resume to apply for the job");
         navigate('/applications');
         return;
       }
 
-      
+      const token = await getToken()
+
+      const response = await axios.post(`${BackEndUrl}/api/users/apply`, { jobId: id }, { headers: { Authorization: `Bearer ${token}` } });
+
+
+      if (response.data.success) {
+
+        await fetchUserApplications();  // Refresh user applications after applying for a job
+        toast.success("Job Applied Successfully");
+        navigate('/applications');
+
+      }
+      else {
+        toast.error(response.data.message);
+      }
+
 
     } catch (error) {
       console.error("Error while applying for job:", error);
-      toast.error("Error while applying for job");
+      toast.error(error.message);
     }
+  }
+
+  // Function To Check If User Already Applied For The Job
+  const checkIfAlreadyApplied = async () => {
+
+    const isApplied = userApplications.some(application => application.jobId._id === id);
+
+    setHasApplied(isApplied);
+
   }
 
   useEffect(() => {
 
     fetchJobData();
 
-  }, [id]);
+    if (userApplications.length > 0 && jobData) {
+      checkIfAlreadyApplied();
+    }
+
+  }, [id, jobData]);
 
   return jobData ? (
     <>
@@ -122,7 +154,9 @@ const ApplyJob = () => {
 
             {/* Apply Now Button and Posted Date */}
             <div className="flex flex-col text-end text-sm max-md:mx-auto max-md:text-center justify-center">
-              <button onClick={() => handleApplyJob()} className='bg-blue-600 p-2.5 px-10 text-white rounded'>Apply Now</button>
+              <button onClick={() => handleApplyJob()} className='bg-blue-600 p-2.5 px-10 text-white rounded cursor-pointer disabled:bg-green-300 disabled:cursor-not-allowed' disabled={hasApplied}>
+                {hasApplied ? 'Already Applied' : 'Apply Now'}
+              </button>
               <p className="mt-1 text-gray-600">Posted On : {new Date(jobData.date).toLocaleDateString()}</p>
             </div>
 
@@ -135,7 +169,9 @@ const ApplyJob = () => {
             <div className="w-full lg:w-2/3">
               <h2 className="font-bold text-2xl mb-4">Job Description</h2>
               <div className='rich-text' dangerouslySetInnerHTML={{ __html: jobData.description }} />
-              <button onClick={() => handleApplyJob()} className='bg-blue-600 p-2.5 px-10 text-white rounded mt-10'>Apply Now</button>
+              <button onClick={() => handleApplyJob()} className='bg-blue-600 p-2.5 px-10 text-white rounded mt-10 cursor-pointer disabled:bg-green-300 disabled:cursor-not-allowed' disabled={hasApplied}>
+                {hasApplied ? 'Already Applied' : 'Apply Now'}
+              </button>
             </div>
 
             {/* More Jobs */}

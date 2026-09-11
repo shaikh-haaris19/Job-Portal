@@ -15,7 +15,7 @@ const Applications = () => {
   const [isEdit, setIsEdit] = useState(false);
   const [resume, setResume] = useState(null);
 
-  const { userData, BackEndUrl, fetchUserData } = useContext(AppContext);
+  const { userData, userApplications, BackEndUrl, fetchUserData } = useContext(AppContext);
 
   const editResume = async () => {
 
@@ -49,9 +49,9 @@ const Applications = () => {
   }
 
   const statusColors = {
-    "Accepted": "bg-green-100",
-    "Rejected": "bg-red-100",
-    "Pending": "bg-yellow-100"
+    "accepted": "bg-green-100",
+    "rejected": "bg-red-100",
+    "pending": "bg-yellow-100"
   };
 
   return (
@@ -105,20 +105,20 @@ const Applications = () => {
           {/* Table Body */}
           <tbody>
             {
-              jobsApplied.map((job, index) => (
+              userApplications.map((job, index) => (
                 <tr key={index}>
                   <td className="py-3 px-4 border-b">
                     <div className="flex items-center gap-2">
-                      <img className="w-8 h-8" src={job.logo} alt="" />
-                      {job.company}
+                      <img className="w-8 h-8" src={job.companyId.image} alt="" />
+                      {job.companyId.name}
                     </div>
                   </td>
 
-                  <td className='py-2 px-4 border-b'>{job.title}</td>
-                  <td className='py-2 px-4 border-b max-sm:hidden'>{job.location}</td>
-                  <td className='py-2 px-4 border-b max-sm:hidden'>{job.date}</td>
+                  <td className='py-2 px-4 border-b'>{job.jobId.title}</td>
+                  <td className='py-2 px-4 border-b max-sm:hidden'>{job.jobId.location}</td>
+                  <td className='py-2 px-4 border-b max-sm:hidden'>{new Date(job.date).toLocaleDateString()}</td>
                   <td className='py-2 px-4 border-b'>
-                    <span className={`${statusColors[job.status]} px-4 py-1.5 rounded`}>
+                    <span className={`${statusColors[job.status]} p-2 rounded`}>
                       {job.status}
                     </span>
                   </td>

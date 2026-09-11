@@ -97,6 +97,28 @@ export const AppContextProvider = ({ children }) => {
 
     }
 
+    //Function To Fetch User Applications From Backend
+    const fetchUserApplications = async () => {
+
+        try {
+
+            const token = await getToken();
+
+            const response = await axios.get(`${BackEndUrl}/api/users/applications`, { headers: { Authorization: `Bearer ${token}` } });
+
+            if (response.data.success) {
+                setUserApplications(response.data.applied_applications);
+            }
+            else {
+                toast.error("Failed to fetch user applications");
+            }
+
+        } catch (error) {
+            toast.error(error.message);
+            console.error("Error while fetching user applications:", error);
+        }
+    }
+
     // Fetching Company Data When The Company Token Changes
     useEffect(() => {
 
@@ -124,6 +146,7 @@ export const AppContextProvider = ({ children }) => {
         // Fetch User Applications When User Data is Available
         if (user) {
             fetchUserData();
+            fetchUserApplications();
         }
 
     }, [user]);
@@ -138,7 +161,8 @@ export const AppContextProvider = ({ children }) => {
         BackEndUrl,
         userData, setUserData,
         userApplications, setUserApplications,
-        fetchUserData
+        fetchUserData,
+        fetchUserApplications
     };
 
     return (

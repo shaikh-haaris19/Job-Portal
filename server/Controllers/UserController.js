@@ -43,14 +43,14 @@ export const applyForJob = async (req, res) => {
         const isAlreadyApplied = await JobApplication.findOne({ userId, jobId })
 
         if (isAlreadyApplied) {
-            return res.status(400).json({ success: false, message: "You have already applied for this job" })
+            return res.json({ success: false, message: "You have already applied for this job" })
         }
 
         //Find The Job Data To Which User Is Applying
         const jobData = await JobModel.findById(jobId)
 
         if (!jobData) {
-            return res.status(404).json({ success: false, message: "Job Not Found" })
+            return res.json({ success: false, message: "Job Not Found" })
         }
 
         //Create New Job Application
@@ -63,7 +63,7 @@ export const applyForJob = async (req, res) => {
 
         await newApplication.save()
 
-        res.json({ success: true, message: "Job application submitted successfully" })
+        res.json({ success: true, message: "Job application submitted successfully", application: newApplication })
 
     } catch (error) {
 
@@ -83,7 +83,7 @@ export const getUserAppliedApplications = async (req, res) => {
 
         // Find all job applications for the user and populate company and job details
         const applications = await JobApplication.find({ userId })
-            .populate('companyId ', 'name email image')
+            .populate('companyId', 'name email image')
             .populate('jobId', 'title description location salary level category')
             .exec()
 
@@ -91,7 +91,7 @@ export const getUserAppliedApplications = async (req, res) => {
             return res.status(404).json({ success: false, message: "No applications found for this user" })
         }
 
-        return res.json({ success: true, "Applied-Applications": applications })
+        return res.json({ success: true, "applied_applications": applications })
 
     } catch (error) {
 
