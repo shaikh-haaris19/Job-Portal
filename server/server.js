@@ -56,8 +56,9 @@ app.use('/api/company', companyRoutes)
 // Use The Job Routes for /api/jobs
 app.use('/api/jobs', jobRoutes)
 
-// Use the user routes for /api/user
-app.use('/api/user', userRoutes)
+
+// Use the user routes for /api/users
+app.use('/api/users', userRoutes)
 
 // -------------------- Error Handling Using Sentry --------------------
 

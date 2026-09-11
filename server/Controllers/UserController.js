@@ -2,18 +2,19 @@ import User from "../Models/userSchema.js"
 import JobApplication from "../Models/JobApplicationSchema.js"
 import JobModel from "../Models/jobSchema.js"
 import { v2 as Cloudinary } from "cloudinary"
+import { getAuth } from "@clerk/express";
 
 //Get User Data
 export const getUserData = async (req, res) => {
 
     try {
 
-        const userId = req.auth.userId
+        const { userId } = getAuth(req);
 
         const user = await User.findById(userId)
 
         if (!user) {
-            return res.status(404).json({ success: false, message: "User Not Found" })
+            return res.json({ success: false, message: "User Not Found" })
         }
 
         res.json({
@@ -36,7 +37,7 @@ export const applyForJob = async (req, res) => {
     try {
 
         const { jobId } = req.body
-        const userId = req.auth.userId
+        const { userId } = getAuth(req);
 
         //Check If User Already Applied For The Job
         const isAlreadyApplied = await JobApplication.findOne({ userId, jobId })
@@ -78,7 +79,7 @@ export const getUserAppliedApplications = async (req, res) => {
 
     try {
 
-        const userId = req.auth.userId
+        const { userId } = getAuth(req);
 
         // Find all job applications for the user and populate company and job details
         const applications = await JobApplication.find({ userId })
@@ -106,7 +107,7 @@ export const updateUserProfile = async (req, res) => {
 
     try {
 
-        const userId = req.auth.userId
+        const { userId } = getAuth(req);
 
         const resume = req.file
 
@@ -127,7 +128,7 @@ export const updateUserProfile = async (req, res) => {
         }
 
     } catch (error) {
-        
+
         console.error("Error updating user profile:", error)
         res.status(500).json({ success: false, message: "Error updating user profile" })
 

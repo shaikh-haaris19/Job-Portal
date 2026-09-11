@@ -1,18 +1,52 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import Footer from '../Components/Footer'
 import Navbar from '../Components/Navbar'
 import { assets, jobsApplied } from '../assets/assets';
+import { AppContext } from '../Context/AppContext';
+import { useAuth, useUser } from "@clerk/react";
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
 const Applications = () => {
+
+  const { getToken } = useAuth();
+  const { user } = useUser();
 
   const [isEdit, setIsEdit] = useState(false);
   const [resume, setResume] = useState(null);
 
-  useEffect(() => {
-    if (resume) {
-      console.log(resume)
+  const { userData, BackEndUrl, fetchUserData } = useContext(AppContext);
+
+  const editResume = async () => {
+
+    try {
+
+      const formData = new FormData();
+      formData.append('resume', resume);
+
+      const token = await getToken();
+
+      const response = await axios.post(`${BackEndUrl}/api/users/update-profile`, formData, { headers: { Authorization: `Bearer ${token}` } });
+
+      if (response.data.success) {
+
+        toast.success("Resume Updated Successfully");
+        await fetchUserData(); // Refresh user data after updating resume
+
+        // After updating the resume, show the edit button again and hide the file input
+        setIsEdit(false);
+
+      }
+      else {
+        toast.error("Error while updating resume");
+      }
+
+    } catch (error) {
+      toast.error("Error while updating resume");
+      console.error("Error while updating resume:", error);
     }
-  }, [resume]);
+
+  }
 
   const statusColors = {
     "Accepted": "bg-green-100",
@@ -27,11 +61,11 @@ const Applications = () => {
         <h2 className='text-2xl font-semibold'>Your Resume</h2>
         <div className='flex gap-2 mb-6 mt-4'>
           {
-            isEdit ?
+            isEdit || userData && userData.resume === "" ?
               <>
                 <label className="flex items-center cursor-pointer" htmlFor="resumeUpload">
 
-                  <p className="bg-blue-100 text-blue-600 mr-2 px-4 py-2 rounded-lg">Select Resume</p>
+                  <p className="bg-blue-100 text-blue-600 mr-2 px-4 py-2 rounded-lg">{resume ? resume.name : "Select Resume"}</p>
 
                   <input id="resumeUpload" onChange={(e) => setResume(e.target.files[0])} accept="application/pdf" type="file" hidden />
 
@@ -39,7 +73,7 @@ const Applications = () => {
 
                 </label>
 
-                <button onClick={() => setIsEdit(false)} className="bg-green-100 border border-green-400 px-4 py-2 rounded-lg">Save</button>
+                <button onClick={() => editResume()} className="bg-green-100 border border-green-400 px-4 py-2 rounded-lg cursor-pointer">Save</button>
               </>
               :
               <div className='flex gap-2'>
