@@ -46,7 +46,7 @@ const AddJobs = () => {
 
       const response = await axios.post(`${BackEndUrl}/api/company/post-job`, jobData, { headers: { token: companyToken } });
 
-      if(response.data.success) {
+      if (response.data.success) {
 
         toast.success("Job posted successfully!");
 

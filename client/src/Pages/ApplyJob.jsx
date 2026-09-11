@@ -31,7 +31,6 @@ const ApplyJob = () => {
       const response = await axios.get(`${BackEndUrl}/api/jobs/${id}`);
 
       if (response.data.success) {
-        console.log(response.data.job)
         setJobData(response.data.job);
       }
 
@@ -180,7 +179,7 @@ const ApplyJob = () => {
               {
                 Jobs.filter(job => job.companyId._id === jobData.companyId._id && job._id !== jobData._id)
                   // Exclude jobs already applied by the user
-                  .filter(job => userApplications.every(application => application.jobId._id !== job._id)) 
+                  .filter(job => userApplications.every(application => application.jobId._id !== job._id))
                   .slice(0, 3)
                   .map((job, index) => (
                     <JobCard key={index} job={job} />

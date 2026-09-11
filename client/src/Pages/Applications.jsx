@@ -1,20 +1,21 @@
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import Footer from '../Components/Footer'
 import Navbar from '../Components/Navbar'
 import { assets } from '../assets/assets';
 import { AppContext } from '../Context/AppContext';
-import { useAuth } from "@clerk/react";
+import { useAuth, useUser } from "@clerk/react";
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
 const Applications = () => {
 
   const { getToken } = useAuth();
+  const { user } = useUser();
 
   const [isEdit, setIsEdit] = useState(false);
   const [resume, setResume] = useState(null);
 
-  const { userData, userApplications, BackEndUrl, fetchUserData } = useContext(AppContext);
+  const { userData, userApplications, BackEndUrl, fetchUserData, fetchUserApplications } = useContext(AppContext);
 
   const editResume = async () => {
 
@@ -47,6 +48,14 @@ const Applications = () => {
 
   }
 
+  useEffect(() => {
+
+    if (user) {
+      fetchUserApplications(); // Fetch user applications when userData is available
+    }
+
+  }, [user]);
+
   const statusColors = {
     "accepted": "bg-green-100",
     "rejected": "bg-red-100",
@@ -77,7 +86,7 @@ const Applications = () => {
               :
               <div className='flex gap-2'>
 
-                <a href="#" className='text-blue-600 bg-blue-100 px-4 py-2 rounded-lg'>Resume</a>
+                <a href={userData.resume} target="_blank" className='text-blue-600 bg-blue-100 px-4 py-2 rounded-lg'>Resume</a>
 
                 <button className="text-gray-500 border border-gray-300 px-4 py-2 rounded-lg" onClick={() => setIsEdit(true)}>Edit</button>
 

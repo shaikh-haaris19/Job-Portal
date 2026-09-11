@@ -172,8 +172,22 @@ export const getCompanyJobApplicants = async (req, res) => {
 
     try {
 
-    } catch (error) {
+        const companyId = req.company._id
 
+        const applications = await JobApplication.find({ companyId })
+            .populate('userId', 'name email resume image')
+            .populate('jobId', 'title description location salary level category')
+            .exec()
+
+        if (!applications) {
+            return res.json({ success: false, message: "No Applications Found For This Company" })
+        }
+
+        return res.json({ success: true, "jobApplicants": applications })
+
+    } catch (error) {
+        console.error("Error fetching company job applicants:", error)
+        return res.json({ success: false, message: "Error Fetching Company Job Applicants" })
     }
 
 }
@@ -218,8 +232,26 @@ export const changeJobApplicationStatus = async (req, res) => {
 
     try {
 
-    } catch (error) {
+        const companyId = req.company._id
+        const { id, status } = req.body
 
+        // Check For The Application To Update
+        const application = await JobApplication.findOneAndUpdate({ _id: id, companyId }, { status }, { returnDocument: 'after' })
+
+        if (!application) {
+            return res.json({ success: false, message: "Application Not Found" })
+        }
+
+        // Update The Application Status
+        application.status = status
+        await application.save()
+
+        return res.json({ success: true, "updatedApplication": application })
+
+
+    } catch (error) {
+        console.error("Error changing job application status:", error)
+        return res.json({ success: false, message: "Error Changing Job Application Status" })
     }
 
 }

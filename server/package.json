@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "server": "nodemon server.js",
+    "server": "nodemon --exec \"node --import ./Config/instrument.js\" server.js",
     "start": "node server.js"
   },
   "keywords": [],

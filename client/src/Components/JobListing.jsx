@@ -40,7 +40,7 @@ const JobListing = () => {
         const matchesLocation = (job) => selectedLocations.length === 0 || selectedLocations.includes(job.location);
 
         // Filter the jobs based on search filter
-        const matchesTitle = (job) => searchFilter.title === "" || job.title.toLowerCase().includes(searchFilter.title.toLowerCase()); 
+        const matchesTitle = (job) => searchFilter.title === "" || job.title.toLowerCase().includes(searchFilter.title.toLowerCase());
 
         const matchesLocationSearch = (job) => searchFilter.location === "" || job.location.toLowerCase().includes(searchFilter.location.toLowerCase());
 

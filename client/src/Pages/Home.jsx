@@ -12,7 +12,7 @@ const Home = () => {
 
   useEffect(() => {
 
-    if( localStorage.getItem('companyToken') ){
+    if (localStorage.getItem('companyToken')) {
       navigate('/dashboard');
     }
 

@@ -23,7 +23,7 @@ const Dashboard = () => {
 
     useEffect(() => {
 
-        if(companyData){
+        if (companyData) {
             navigate("/dashboard/add-jobs");
         }
 
@@ -92,7 +92,7 @@ const Dashboard = () => {
                 </div>
 
                 {/* Outlet For The Nested Routes */}
-                <div>
+                <div className="flex justify-center items-center min-h-screen w-full">
                     <Outlet />
                 </div>
 

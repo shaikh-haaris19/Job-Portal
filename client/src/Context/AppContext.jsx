@@ -61,7 +61,6 @@ export const AppContextProvider = ({ children }) => {
 
             if (response.data.success) {
                 setCompanyData(response.data.company);
-                console.log(response.data.company);
             }
             else {
                 toast.error("Failed to fetch company data");
